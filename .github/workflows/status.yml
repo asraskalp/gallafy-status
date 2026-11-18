@@ -1,0 +1,90 @@
+# status.gallafy.com (docs/adr/0601 in the app repository, whose ops/status-page/
+# folder is the source of this one). In this public repository it checks every
+# component, saves the state on the `status-data` branch and publishes the page.
+#
+# - schedule: every 5 minutes (GitHub may start a run late under load; the page
+#   says when it last checked, and turns "not checked" after 20 minutes).
+# - push to main: an incident note was added or edited; re-render, no probe.
+# - workflow_dispatch: run now.
+#
+# No secret is used or needed. GITHUB_TOKEN pushes the state branch and deploys Pages.
+name: status
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+# One run at a time, never cancelled: each run reads the state the last one saved.
+concurrency:
+  group: status
+  cancel-in-progress: false
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # push state.json to the status-data branch
+      pages: write # publish the site
+      id-token: write # deploy-pages proves the run's identity to Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      # A red test stops the run here: the last good page stays up.
+      - name: Test the state logic
+        run: node --test test/state.test.mjs test/render.test.mjs
+
+      - name: Read the saved state
+        run: |
+          mkdir -p .state
+          if git fetch --quiet --depth=1 origin status-data; then
+            git show FETCH_HEAD:state.json > .state/state.json
+          else
+            echo "No status-data branch yet: this is the first run."
+          fi
+
+      - name: Check and render
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = "push" ]; then
+            node probe.mjs --state .state/state.json --out _site --render-only
+          else
+            node probe.mjs --state .state/state.json --out _site
+          fi
+
+      # One commit, force-pushed: the branch holds the latest state and no history.
+      - name: Save the state
+        if: github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          cd .state
+          git init --quiet --initial-branch=status-data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git commit --quiet -m "state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push --quiet --force "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" status-data
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -1,0 +1,117 @@
+{
+  "//": "What status.gallafy.com checks (docs/adr/0601). `public: false` probes and keeps history but shows no row: a row is shown only once the service is switched on in prod, so the page never reports on something we do not run. Each check's URL is public and unauthenticated; this repo holds no secret. The e-way bill and e-invoice rows read the app's own count of its requests to those systems (`app-verdict`, row 1619), because a vendor can answer its front door while those requests fail.",
+  "siteUrl": "https://status.gallafy.com",
+  "appUrl": "https://console.gallafy.com",
+  "homeUrl": "https://gallafy.com",
+  "contact": {
+    "email": "founder@gallafy.com",
+    "whatsappDisplay": "+91 99998 20213",
+    "whatsappE164": "919999820213"
+  },
+  "timeoutMs": 10000,
+  "components": [
+    {
+      "id": "console",
+      "public": true,
+      "slowMs": 4000,
+      "checks": [
+        {
+          "url": "https://console.gallafy.com/api/health",
+          "expect": { "kind": "json-field", "field": "status", "value": "ok" }
+        },
+        {
+          "url": "https://console.gallafy.com/sign-in",
+          "expect": { "kind": "status", "codes": [200] }
+        }
+      ]
+    },
+    {
+      "id": "database",
+      "public": true,
+      "slowMs": 4000,
+      "checks": [
+        {
+          "url": "https://console.gallafy.com/api/health/ready",
+          "expect": { "kind": "json-field", "field": "database", "value": "ok" }
+        }
+      ]
+    },
+    {
+      "id": "website",
+      "public": true,
+      "slowMs": 4000,
+      "checks": [
+        {
+          "url": "https://gallafy.com/",
+          "expect": { "kind": "status", "codes": [200] }
+        }
+      ]
+    },
+    {
+      "id": "gsp",
+      "public": true,
+      "slowMs": 6000,
+      "vendorStatusUrl": "https://status.sandbox.co.in/",
+      "checks": [
+        {
+          "url": "https://api.sandbox.co.in/",
+          "expect": { "kind": "answers-json" }
+        }
+      ]
+    },
+    {
+      "id": "eway",
+      "public": true,
+      "slowMs": 6000,
+      "vendorStatusUrl": "https://status.sandbox.co.in/",
+      "checks": [
+        {
+          "url": "https://console.gallafy.com/api/health/gst-systems",
+          "expect": { "kind": "app-verdict", "system": "eway" }
+        },
+        {
+          "url": "https://api.sandbox.co.in/",
+          "expect": { "kind": "answers-json" }
+        }
+      ]
+    },
+    {
+      "id": "einvoice",
+      "public": true,
+      "slowMs": 6000,
+      "vendorStatusUrl": "https://status.sandbox.co.in/",
+      "checks": [
+        {
+          "url": "https://console.gallafy.com/api/health/gst-systems",
+          "expect": { "kind": "app-verdict", "system": "einvoice" }
+        },
+        {
+          "url": "https://api.sandbox.co.in/",
+          "expect": { "kind": "answers-json" }
+        }
+      ]
+    },
+    {
+      "id": "email",
+      "public": false,
+      "slowMs": 6000,
+      "checks": [
+        {
+          "url": "https://email.ap-south-1.amazonaws.com/",
+          "expect": { "kind": "answers" }
+        }
+      ]
+    },
+    {
+      "id": "payments",
+      "public": false,
+      "slowMs": 6000,
+      "checks": [
+        {
+          "url": "https://api.razorpay.com/v1/",
+          "expect": { "kind": "answers-json" }
+        }
+      ]
+    }
+  ]
+}

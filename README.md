@@ -10,8 +10,10 @@ edit made here.** Change it there.
 
 ## What it checks
 
-Every 5 minutes (GitHub may start a run a few minutes late), with a 10-second
-limit per request, no key and no cookie. All URLs are in `config.json`.
+A few times a day: GitHub's schedule is asked for every 5 minutes but, on this
+repository, starts a run only every 4 to 12 hours (25 runs, 19–26 Nov 2026), so the page
+reads "not checked" most of the time and the 90-day bars stay grey. Each check has
+a 10-second limit per request, no key and no cookie. All URLs are in `config.json`.
 
 | Row                    | Request                                                               | Counts as working                                        |
 | ---------------------- | --------------------------------------------------------------------- | -------------------------------------------------------- |

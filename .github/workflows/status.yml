@@ -2,8 +2,9 @@
 # folder is the source of this one). In this public repository it checks every
 # component, saves the state on the `status-data` branch and publishes the page.
 #
-# - schedule: every 5 minutes (GitHub may start a run late under load; the page
-#   says when it last checked, and turns "not checked" after 20 minutes).
+# - schedule: asked for every 5 minutes; GitHub starts it only every 4 to 12
+#   hours (25 runs, 19–26 Nov 2026). The page says when it last checked and turns
+#   "not checked" after 20 minutes, which is most of the time.
 # - push to main: an incident note was added or edited; re-render, no probe.
 # - workflow_dispatch: run now.
 #
@@ -24,17 +25,18 @@ concurrency:
   group: status
   cancel-in-progress: false
 
+# Two jobs, build then deploy, as GitHub's Jekyll and Next.js Pages starter
+# workflows are laid out. `deploy-pages` lists the run's artifacts; in the same
+# job, a second after the upload, that list came back empty and 4 of 25
+# scheduled runs failed on 23-25 Nov 2026 ("Found 0 artifact(s)"). The deploy
+# job starts only after the build job has finished, on a fresh runner, which
+# gives the upload time to settle; and each job holds only what it uses.
 jobs:
   status:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: write # push state.json to the status-data branch
-      pages: write # publish the site
-      id-token: write # deploy-pages proves the run's identity to Pages
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -86,5 +88,16 @@ jobs:
         with:
           path: _site
 
+  deploy:
+    needs: status
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pages: write # publish the site
+      id-token: write # deploy-pages proves the run's identity to Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

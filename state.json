@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "lastRunAt": 1795870473428,
+  "components": {
+    "console": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 1508,
+      "lastInterval": null,
+      "days": {}
+    },
+    "database": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 1516,
+      "lastInterval": null,
+      "days": {}
+    },
+    "website": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 1944,
+      "lastInterval": null,
+      "days": {}
+    },
+    "gsp": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 984,
+      "lastInterval": null,
+      "days": {}
+    },
+    "eway": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 1535,
+      "lastInterval": null,
+      "days": {}
+    },
+    "einvoice": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 1498,
+      "lastInterval": null,
+      "days": {}
+    },
+    "email": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 954,
+      "lastInterval": null,
+      "days": {}
+    },
+    "payments": {
+      "state": "operational",
+      "since": 1795024916884,
+      "fails": 0,
+      "slows": 0,
+      "lastCheckedAt": 1795870473428,
+      "lastReason": "ok",
+      "lastMs": 1118,
+      "lastInterval": null,
+      "days": {}
+    }
+  }
+}
